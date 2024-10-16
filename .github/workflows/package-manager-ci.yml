@@ -16,5 +16,36 @@ on:
       - '*.md'
 
 jobs:
-  test:
-    uses: fastify/workflows/.github/workflows/plugins-ci-package-manager.yml@v4.1.0
+  # test:
+    # uses: fastify/workflows/.github/workflows/plugins-ci-package-manager.yml@v4.1.0
+
+  pnpm:
+    name: pnpm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: [20]
+        pnpm-version: [8]
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Setup Node 
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install with pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: ${{ matrix.pnpm-version }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run tests
+        run: pnpm run test
